@@ -2,9 +2,13 @@ import { useState } from 'react';
 import ShapeRenderer from './ShapeRenderer';
 import { QUESTION_TYPES } from '../data/questions';
 
+// vw-based shape size: big on desktop, fits 2-col grid on mobile
+const shapeSize = () => Math.min(Math.max(window.innerWidth / 6, 60), 90);
+
 export default function QuestionCard({ question, onAnswer }) {
   const [selected, setSelected] = useState(null);
   const [answered, setAnswered] = useState(false);
+  const sz = shapeSize();
 
   function handleSelect(choice, index) {
     if (answered) return;
@@ -33,7 +37,7 @@ export default function QuestionCard({ question, onAnswer }) {
             shape={question.target.shape}
             color={question.target.color}
             rotation={question.target.rotation}
-            size={110}
+            size={Math.min(sz + 20, 110)}
           />
         </div>
       )}
@@ -62,10 +66,10 @@ export default function QuestionCard({ question, onAnswer }) {
                 shape={choice.shape}
                 color={choice.color}
                 rotation={choice.rotation ?? 0}
-                size={80}
+                size={sz}
               />
               {answered && i === selected && (
-                <span style={{ fontSize: 24 }}>{choice.correct ? '⭕' : '❌'}</span>
+                <span style={{ fontSize: 22 }}>{choice.correct ? '⭕' : '❌'}</span>
               )}
             </button>
           );
@@ -141,16 +145,16 @@ const styles = {
   card: {
     background: '#fff',
     borderRadius: 20,
-    padding: '28px 32px',
+    padding: 'clamp(16px, 4vw, 28px) clamp(14px, 4vw, 32px)',
     boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
     maxWidth: 640,
     margin: '0 auto',
   },
   questionText: {
-    fontSize: 22,
+    fontSize: 'clamp(16px, 4.5vw, 22px)',
     fontWeight: 700,
     color: '#2c3e50',
-    marginBottom: 20,
+    marginBottom: 16,
     lineHeight: 1.5,
   },
   targetBox: {
@@ -159,65 +163,70 @@ const styles = {
     alignItems: 'center',
     background: '#f0f4ff',
     borderRadius: 14,
-    padding: '16px 24px',
-    marginBottom: 24,
+    padding: '12px 20px',
+    marginBottom: 20,
     width: 'fit-content',
   },
   label: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 700,
     color: '#6c7a89',
-    marginBottom: 8,
+    marginBottom: 6,
     letterSpacing: 1,
   },
   choices: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: 14,
+    gap: 10,
   },
   choiceBtn: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
     borderRadius: 14,
-    padding: '14px 10px',
+    padding: '12px 6px',
     transition: 'transform 0.1s',
+    touchAction: 'manipulation',
+    WebkitTapHighlightColor: 'transparent',
+    minHeight: 44,
   },
   choiceLabel: {
-    fontSize: 16,
+    fontSize: 'clamp(14px, 3.5vw, 16px)',
     fontWeight: 700,
     color: '#6c7a89',
   },
   hint: {
-    marginTop: 16,
-    padding: '10px 16px',
+    marginTop: 14,
+    padding: '10px 14px',
     background: '#fffbe6',
     borderRadius: 10,
-    fontSize: 15,
+    fontSize: 'clamp(13px, 3vw, 15px)',
     color: '#7d6608',
   },
   shapeGrid: {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
     justifyContent: 'center',
     background: '#f8f9fa',
     borderRadius: 14,
-    padding: 16,
-    marginBottom: 24,
+    padding: 14,
+    marginBottom: 20,
   },
   numChoices: {
     display: 'flex',
-    gap: 16,
+    gap: 12,
     justifyContent: 'center',
   },
   numBtn: {
-    width: 64,
-    height: 64,
+    width: 'clamp(56px, 15vw, 72px)',
+    height: 'clamp(56px, 15vw, 72px)',
     borderRadius: 14,
-    fontSize: 28,
+    fontSize: 'clamp(22px, 6vw, 30px)',
     fontWeight: 700,
     color: '#2c3e50',
+    touchAction: 'manipulation',
+    WebkitTapHighlightColor: 'transparent',
   },
 };
