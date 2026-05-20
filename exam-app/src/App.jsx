@@ -1,7 +1,15 @@
 import { useState } from 'react';
-import { questions } from './data/questions';
+import { questions, QUESTION_TYPES } from './data/questions';
 import QuestionCard from './components/QuestionCard';
 import ResultScreen from './components/ResultScreen';
+
+const TYPE_LABELS = {
+  [QUESTION_TYPES.SAME_SHAPE]:  { icon: '👁', text: 'おなじかたち' },
+  [QUESTION_TYPES.ROTATION]:    { icon: '🔄', text: 'まわしたかたち' },
+  [QUESTION_TYPES.COUNT]:       { icon: '🔢', text: 'いくつあるかな' },
+  [QUESTION_TYPES.ODD_ONE_OUT]: { icon: '🚫', text: 'なかまはずれ' },
+  [QUESTION_TYPES.PATTERN]:     { icon: '➡️', text: 'つぎはなにかな' },
+};
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
@@ -10,8 +18,8 @@ function shuffle(arr) {
 export default function App() {
   const [qs, setQs] = useState(() => shuffle(questions));
   const [current, setCurrent] = useState(0);
-  const [score, setScore] = useState(0);
-  const [phase, setPhase] = useState('start');
+  const [score, setScore]   = useState(0);
+  const [phase, setPhase]   = useState('start');
 
   function startQuiz() {
     setQs(shuffle(questions));
@@ -21,60 +29,70 @@ export default function App() {
   }
 
   function handleAnswer(correct) {
-    const nextScore = correct ? score + 1 : score;
-    setScore(nextScore);
-    if (current + 1 >= qs.length) {
-      setPhase('result');
-    } else {
-      setCurrent((c) => c + 1);
-    }
+    const next = correct ? score + 1 : score;
+    setScore(next);
+    if (current + 1 >= qs.length) setPhase('result');
+    else setCurrent(c => c + 1);
   }
 
+  const pct = qs.length ? Math.round(((current) / qs.length) * 100) : 0;
+
   return (
-    <div style={styles.root}>
-      <header style={styles.header}>
-        <h1 style={styles.logo}>🔷 ずけい もんだいしゅう</h1>
+    <div style={S.root}>
+      {/* ── ヘッダー ── */}
+      <header style={S.header}>
+        <span style={S.headerTitle}>ずけい もんだいしゅう</span>
         {phase === 'quiz' && (
-          <span style={styles.progress}>
-            {current + 1} / {qs.length}
+          <span style={S.headerCount}>
+            {current + 1}<span style={S.headerTotal}> / {qs.length}</span>
           </span>
         )}
       </header>
 
-      <main style={styles.main}>
+      {/* ── プログレスバー ── */}
+      {phase === 'quiz' && (
+        <div style={S.barTrack}>
+          <div style={{ ...S.barFill, width: `${pct}%` }} />
+        </div>
+      )}
+
+      <main style={S.main}>
+        {/* ── スタート画面 ── */}
         {phase === 'start' && (
-          <div style={styles.startCard}>
-            <div style={styles.startEmoji}>🔺🔵🟥</div>
-            <h2 style={styles.startTitle}>小学校受験<br />図形・空間認識</h2>
-            <p style={styles.startDesc}>
-              ずけいのもんだいにちょうせんしよう！<br />
-              ぜんぶで <strong>{questions.length}</strong> もんあります。
-            </p>
-            <div style={styles.types}>
-              <TypeBadge icon="👁" text="おなじかたち" />
-              <TypeBadge icon="🔄" text="かいてん" />
-              <TypeBadge icon="🔢" text="かずをかぞえる" />
-              <TypeBadge icon="🚫" text="なかまはずれ" />
+          <div style={S.cover}>
+            <div style={S.coverTop}>
+              <p style={S.coverKind}>しょうがっこうじゅけん</p>
+              <h1 style={S.coverTitle}>ずけい もんだいしゅう</h1>
+              <p style={S.coverSub}>ぜんぶで {questions.length} もん</p>
             </div>
-            <button onClick={startQuiz} style={styles.startBtn}>
-              はじめる！
-            </button>
+            <div style={S.coverDivider} />
+            <div style={S.typeGrid}>
+              {Object.values(QUESTION_TYPES).map(t => {
+                const lb = TYPE_LABELS[t];
+                return (
+                  <div key={t} style={S.typeRow}>
+                    <span style={S.typeIcon}>{lb.icon}</span>
+                    <span style={S.typeText}>{lb.text}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={S.coverDivider} />
+            <button onClick={startQuiz} style={S.startBtn}>はじめる</button>
           </div>
         )}
 
+        {/* ── 問題画面 ── */}
         {phase === 'quiz' && (
-          <>
-            <div style={styles.progressBar}>
-              <div style={{ ...styles.progressFill, width: `${((current + 1) / qs.length) * 100}%` }} />
-            </div>
-            <QuestionCard
-              key={qs[current].id}
-              question={qs[current]}
-              onAnswer={handleAnswer}
-            />
-          </>
+          <QuestionCard
+            key={qs[current].id}
+            question={qs[current]}
+            index={current}
+            onAnswer={handleAnswer}
+          />
         )}
 
+        {/* ── 結果画面 ── */}
         {phase === 'result' && (
           <ResultScreen score={score} total={qs.length} onRetry={startQuiz} />
         )}
@@ -83,114 +101,125 @@ export default function App() {
   );
 }
 
-function TypeBadge({ icon, text }) {
-  return (
-    <span style={styles.badge}>
-      {icon} {text}
-    </span>
-  );
-}
+const FONT = '"Hiragino Kaku Gothic ProN", "Meiryo", "Yu Gothic", sans-serif';
 
-const styles = {
+const S = {
   root: {
-    minHeight: '100vh',
     minHeight: '100dvh',
-    background: 'linear-gradient(160deg, #e8f4fd 0%, #fef9f0 100%)',
-    fontFamily: '"Hiragino Kaku Gothic ProN", "Meiryo", sans-serif',
+    background: '#F5F3EE',
+    fontFamily: FONT,
+    color: '#1A1A1A',
   },
   header: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px 16px',
-    background: 'linear-gradient(135deg, #4A90D9, #7B68EE)',
-    boxShadow: '0 2px 12px rgba(74,144,217,0.3)',
+    padding: '10px 16px',
+    background: '#fff',
+    borderBottom: '2px solid #2C2C2C',
     position: 'sticky',
     top: 0,
     zIndex: 10,
   },
-  logo: {
-    color: '#fff',
-    fontSize: 'clamp(16px, 4vw, 22px)',
-    fontWeight: 800,
-    margin: 0,
-  },
-  progress: {
-    color: '#fff',
-    fontSize: 'clamp(14px, 3.5vw, 18px)',
+  headerTitle: {
+    fontSize: 'clamp(14px, 3.5vw, 17px)',
     fontWeight: 700,
-    background: 'rgba(255,255,255,0.2)',
-    padding: '4px 12px',
-    borderRadius: 20,
-    whiteSpace: 'nowrap',
+    letterSpacing: 1,
+    color: '#1A1A1A',
   },
-  main: {
-    maxWidth: 680,
-    margin: '20px auto',
-    padding: '0 12px',
+  headerCount: {
+    fontSize: 'clamp(18px, 5vw, 22px)',
+    fontWeight: 900,
+    color: '#2563EB',
   },
-  progressBar: {
-    height: 8,
-    background: '#dce8f5',
-    borderRadius: 4,
-    marginBottom: 20,
-    overflow: 'hidden',
+  headerTotal: {
+    fontSize: 'clamp(13px, 3.5vw, 16px)',
+    fontWeight: 700,
+    color: '#555',
   },
-  progressFill: {
+  barTrack: {
+    height: 5,
+    background: '#E5E5E5',
+  },
+  barFill: {
     height: '100%',
-    background: 'linear-gradient(90deg, #4A90D9, #7B68EE)',
-    borderRadius: 4,
+    background: '#2563EB',
     transition: 'width 0.4s ease',
   },
-  startCard: {
+  main: {
+    maxWidth: 640,
+    margin: '16px auto',
+    padding: '0 12px 32px',
+  },
+
+  // ── Cover (start screen) ──
+  cover: {
     background: '#fff',
-    borderRadius: 20,
-    padding: 'clamp(24px, 6vw, 40px) clamp(16px, 5vw, 36px)',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
+    border: '2px solid #2C2C2C',
+    borderRadius: 4,
+    padding: 'clamp(24px, 6vw, 40px) clamp(20px, 5vw, 36px)',
     textAlign: 'center',
   },
-  startEmoji: { fontSize: 'clamp(40px, 10vw, 52px)', marginBottom: 12 },
-  startTitle: {
-    fontSize: 'clamp(22px, 5.5vw, 28px)',
-    fontWeight: 800,
-    color: '#2c3e50',
-    lineHeight: 1.4,
-    marginBottom: 16,
-  },
-  startDesc: {
-    fontSize: 'clamp(14px, 3.5vw, 17px)',
-    color: '#555',
-    lineHeight: 1.7,
-    marginBottom: 24,
-  },
-  types: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 8,
-    justifyContent: 'center',
-    marginBottom: 28,
-  },
-  badge: {
-    background: '#f0f4ff',
-    color: '#4A90D9',
-    borderRadius: 20,
-    padding: '6px 12px',
+  coverTop: { marginBottom: 0 },
+  coverKind: {
     fontSize: 'clamp(12px, 3vw, 14px)',
-    fontWeight: 600,
+    letterSpacing: 3,
+    color: '#555',
+    fontWeight: 700,
+    margin: '0 0 8px',
+  },
+  coverTitle: {
+    fontSize: 'clamp(24px, 6.5vw, 34px)',
+    fontWeight: 900,
+    color: '#1A1A1A',
+    lineHeight: 1.3,
+    margin: '0 0 8px',
+    letterSpacing: 2,
+  },
+  coverSub: {
+    fontSize: 'clamp(14px, 3.5vw, 17px)',
+    color: '#2563EB',
+    fontWeight: 700,
+    margin: 0,
+  },
+  coverDivider: {
+    height: 2,
+    background: '#2C2C2C',
+    margin: '20px 0',
+  },
+  typeGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    textAlign: 'left',
+    maxWidth: 280,
+    margin: '0 auto',
+  },
+  typeRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+  },
+  typeIcon: { fontSize: 22, flexShrink: 0 },
+  typeText: {
+    fontSize: 'clamp(14px, 3.5vw, 17px)',
+    fontWeight: 700,
+    color: '#1A1A1A',
   },
   startBtn: {
-    background: 'linear-gradient(135deg, #4A90D9, #7B68EE)',
+    background: '#2563EB',
     color: '#fff',
-    border: 'none',
-    borderRadius: 16,
-    padding: 'clamp(14px, 3.5vw, 16px) clamp(32px, 8vw, 48px)',
-    fontSize: 'clamp(17px, 4.5vw, 20px)',
-    fontWeight: 800,
+    border: '2px solid #1D4ED8',
+    borderRadius: 4,
+    padding: 'clamp(14px, 3.5vw, 18px) 0',
+    fontSize: 'clamp(18px, 5vw, 22px)',
+    fontWeight: 900,
     cursor: 'pointer',
-    boxShadow: '0 4px 16px rgba(74,144,217,0.4)',
     touchAction: 'manipulation',
     WebkitTapHighlightColor: 'transparent',
     width: '100%',
-    maxWidth: 280,
+    maxWidth: 300,
+    letterSpacing: 4,
+    fontFamily: FONT,
   },
 };

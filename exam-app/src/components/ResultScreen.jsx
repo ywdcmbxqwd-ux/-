@@ -1,77 +1,119 @@
 export default function ResultScreen({ score, total, onRetry }) {
   const pct = Math.round((score / total) * 100);
-  const emoji = pct >= 80 ? '🌟' : pct >= 50 ? '😊' : '😢';
-  const message =
-    pct >= 80 ? 'すごい！よくできました！' :
-    pct >= 50 ? 'がんばりました！もう少しです！' :
-    'もう一どやってみよう！';
+  const stars = pct >= 80 ? 3 : pct >= 50 ? 2 : 1;
+  const msg =
+    pct >= 80 ? 'すばらしい！ よくできました！' :
+    pct >= 50 ? 'がんばりました！ もうすこし！' :
+    'もう いちど ちょうせん！';
 
   return (
-    <div style={styles.wrap}>
-      <div style={styles.card}>
-        <div style={styles.emoji}>{emoji}</div>
-        <h2 style={styles.title}>けっか</h2>
-        <p style={styles.score}>
-          {total}もん中 <span style={styles.big}>{score}</span> もん せいかい！
-        </p>
-        <div style={styles.bar}>
-          <div style={{ ...styles.fill, width: `${pct}%` }} />
+    <div style={S.wrap}>
+      <div style={S.paper}>
+        <div style={S.ruled} />
+        <p style={S.heading}>けっか はっぴょう</p>
+        <div style={S.stars}>
+          {[1,2,3].map(n => (
+            <span key={n} style={{ color: n <= stars ? '#F59E0B' : '#D1D5DB', fontSize: 'clamp(32px, 9vw, 48px)' }}>★</span>
+          ))}
         </div>
-        <p style={styles.pct}>{pct}%</p>
-        <p style={styles.message}>{message}</p>
-        <button onClick={onRetry} style={styles.btn}>もう一どチャレンジ！</button>
+        <p style={S.scoreText}>
+          <span style={S.big}>{score}</span>
+          <span style={S.unit}> / {total} もん せいかい</span>
+        </p>
+        <div style={S.barWrap}>
+          <div style={{ ...S.barFill, width: `${pct}%` }} />
+        </div>
+        <p style={S.pct}>{pct} %</p>
+        <p style={S.msg}>{msg}</p>
+        <div style={S.ruled} />
+        <button onClick={onRetry} style={S.btn}>
+          もう いちど やる
+        </button>
       </div>
     </div>
   );
 }
 
-const styles = {
+const S = {
   wrap: {
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '60vh',
+    padding: '8px 0 32px',
   },
-  card: {
+  paper: {
     background: '#fff',
-    borderRadius: 24,
-    padding: 'clamp(24px, 6vw, 40px) clamp(20px, 6vw, 48px)',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+    border: '2px solid #2C2C2C',
+    borderRadius: 4,
+    padding: 'clamp(20px, 5vw, 36px) clamp(20px, 6vw, 44px)',
     textAlign: 'center',
-    maxWidth: 420,
+    maxWidth: 400,
     width: '100%',
+    fontFamily: '"Hiragino Kaku Gothic ProN", "Meiryo", sans-serif',
   },
-  emoji: { fontSize: 'clamp(52px, 14vw, 72px)', marginBottom: 8 },
-  title: { fontSize: 'clamp(22px, 5.5vw, 28px)', fontWeight: 700, color: '#2c3e50', marginBottom: 16 },
-  score: { fontSize: 'clamp(16px, 4vw, 20px)', color: '#555', marginBottom: 12 },
-  big: { fontSize: 'clamp(32px, 8vw, 40px)', fontWeight: 900, color: '#4A90D9' },
-  bar: {
-    height: 16,
-    background: '#e8e8e8',
-    borderRadius: 8,
+  ruled: {
+    height: 2,
+    background: '#2C2C2C',
+    margin: '16px 0',
+  },
+  heading: {
+    fontSize: 'clamp(15px, 4vw, 18px)',
+    fontWeight: 700,
+    color: '#555',
+    letterSpacing: 3,
+    margin: '0 0 12px',
+  },
+  stars: { fontSize: 40, letterSpacing: 4, marginBottom: 16 },
+  scoreText: { margin: '0 0 12px' },
+  big: {
+    fontSize: 'clamp(44px, 11vw, 60px)',
+    fontWeight: 900,
+    color: '#2563EB',
+    lineHeight: 1,
+  },
+  unit: {
+    fontSize: 'clamp(15px, 3.5vw, 18px)',
+    fontWeight: 700,
+    color: '#1A1A1A',
+  },
+  barWrap: {
+    height: 14,
+    background: '#E5E5E5',
+    borderRadius: 2,
     overflow: 'hidden',
-    margin: '0 auto 8px',
-    width: '100%',
+    margin: '0 0 6px',
+    border: '1px solid #ccc',
   },
-  fill: {
+  barFill: {
     height: '100%',
-    background: 'linear-gradient(90deg, #4A90D9, #2ECC71)',
-    borderRadius: 8,
+    background: '#2563EB',
     transition: 'width 0.8s ease',
   },
-  pct: { fontSize: 'clamp(16px, 4vw, 18px)', fontWeight: 700, color: '#4A90D9', marginBottom: 16 },
-  message: { fontSize: 'clamp(16px, 4.5vw, 20px)', color: '#333', marginBottom: 24, fontWeight: 600 },
+  pct: {
+    fontSize: 'clamp(13px, 3vw, 15px)',
+    color: '#555',
+    fontWeight: 700,
+    margin: '0 0 16px',
+  },
+  msg: {
+    fontSize: 'clamp(16px, 4.5vw, 20px)',
+    fontWeight: 700,
+    color: '#1A1A1A',
+    margin: '0 0 20px',
+    lineHeight: 1.5,
+  },
   btn: {
-    background: 'linear-gradient(135deg, #4A90D9, #7B68EE)',
+    background: '#2563EB',
     color: '#fff',
-    border: 'none',
-    borderRadius: 14,
-    padding: 'clamp(13px, 3.5vw, 16px) clamp(24px, 7vw, 36px)',
-    fontSize: 'clamp(16px, 4vw, 18px)',
+    border: '2px solid #1D4ED8',
+    borderRadius: 4,
+    padding: 'clamp(12px, 3vw, 16px) 0',
+    fontSize: 'clamp(16px, 4vw, 19px)',
     fontWeight: 700,
     cursor: 'pointer',
     touchAction: 'manipulation',
     WebkitTapHighlightColor: 'transparent',
     width: '100%',
+    fontFamily: 'inherit',
+    letterSpacing: 1,
   },
 };
