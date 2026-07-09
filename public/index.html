@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0d12" />
+  <title>My App</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100dvh; display: grid; place-items: center;
+      font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: #0b0d12; color: #e8eaf0;
+      -webkit-font-smoothing: antialiased;
+    }
+    main { width: min(680px, 92vw); padding: 2.5rem 0; }
+    .badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .8rem; letter-spacing: .04em; color: #7ee787;
+      background: rgba(126,231,135,.1); border: 1px solid rgba(126,231,135,.25);
+      padding: .35rem .7rem; border-radius: 999px;
+    }
+    .dot { width: .5rem; height: .5rem; border-radius: 50%; background: #7ee787; box-shadow: 0 0 8px #7ee787; }
+    h1 { font-size: clamp(1.8rem, 6vw, 3rem); margin: 1.2rem 0 .5rem; line-height: 1.1; }
+    p.lead { color: #aab1c4; font-size: 1.05rem; line-height: 1.7; margin: 0 0 2rem; }
+    .card {
+      background: #151823; border: 1px solid #232735; border-radius: 16px;
+      padding: 1.5rem; margin-top: 1rem;
+    }
+    .card h2 { margin: 0 0 .75rem; font-size: 1rem; color: #e8eaf0; }
+    button {
+      font: inherit; font-weight: 600; cursor: pointer;
+      background: #4f7cff; color: white; border: 0; border-radius: 10px;
+      padding: .7rem 1.2rem; transition: transform .06s ease, background .2s;
+    }
+    button:hover { background: #3d68ec; }
+    button:active { transform: scale(.97); }
+    .out { margin-top: 1rem; font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 2.5rem; color: #6b7386; font-size: .85rem; }
+    a { color: #8ea4ff; }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge"><span class="dot"></span> LIVE · 本番稼働中</span>
+    <h1>My App</h1>
+    <p class="lead">
+      これはGitHub Pagesに繋がった、本物の稼働中Webアプリです。<br />
+      <code>public/index.html</code> を書き換えて <code>git push</code> すれば、数十秒で自動反映されます。
+    </p>
+
+    <div class="card">
+      <h2>動作確認（JSがちゃんと動いてる証拠）</h2>
+      <button id="btn">カウント +1</button>
+      <div class="out">回数: <span id="count">0</span></div>
+    </div>
+
+    <footer>
+      ⚡ 中身はここから作り込んでいきます。
+    </footer>
+  </main>
+
+  <script>
+    const el = document.getElementById('count');
+    let n = Number(localStorage.getItem('count') || 0);
+    el.textContent = n;
+    document.getElementById('btn').addEventListener('click', () => {
+      n++; el.textContent = n; localStorage.setItem('count', n);
+    });
+  </script>
+</body>
+</html>
